@@ -1,0 +1,1646 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>森語美甲 Forest Whisper 雲端智慧顧客報價系統</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f5f8f8; /* Soft forest-mist blue-gray */
+        }
+        /* Custom Forest Whisper Palette */
+        .brand-gradient {
+            background: linear-gradient(135deg, #a5ccd1 0%, #c4b2a3 100%);
+        }
+        .text-light-blue {
+            color: #4a7c82;
+        }
+        .bg-light-blue-soft {
+            background-color: #eef5f6;
+        }
+        .border-light-blue {
+            border-color: #d1e2e4;
+        }
+        .text-coffee {
+            color: #8c7662;
+        }
+        .bg-coffee-soft {
+            background-color: #f7f4f0;
+        }
+        .border-coffee {
+            border-color: #e8e1d7;
+        }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f5f8f8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbdadd;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-light-blue sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 brand-gradient text-white rounded-full shadow-md">
+                    <i data-lucide="trees" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wider text-gray-900 flex items-center gap-2">
+                        森語美甲 <span class="text-[11px] bg-sky-100 text-sky-800 px-2.5 py-0.5 rounded-full font-semibold">1/13 專業雲端紀錄版</span>
+                    </h1>
+                    <p class="text-xs text-gray-500 mt-0.5">自然・溫暖・森林系顧客資料與雲端報價整合系統</p>
+                </div>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <div class="flex bg-stone-100 p-1 rounded-xl border border-coffee w-full sm:w-auto">
+                <button id="tab-calc-btn" onclick="switchTab('calc')" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 bg-white text-stone-800 shadow-sm border border-stone-200">
+                    <i data-lucide="calculator" class="w-4 h-4"></i>
+                    顧客預算報價
+                </button>
+                <button id="tab-history-btn" onclick="switchTab('history')" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-gray-600 hover:text-stone-800 relative">
+                    <i data-lucide="database" class="w-4 h-4"></i>
+                    顧客歷史檔案庫
+                    <span id="history-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+                <button id="tab-menu-btn" onclick="switchTab('menu')" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-gray-600 hover:text-stone-800">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    完整價目表
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-6 w-full">
+        
+        <!-- ==================== TAB 1: CALCULATOR ==================== -->
+        <div id="tab-calc" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Input Form Panels (Left) -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- Step 1: Customer Info Entry -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-light-blue transition-all hover:shadow-md">
+                    <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full brand-gradient text-white flex items-center justify-center text-xs"><i data-lucide="user" class="w-3.5 h-3.5"></i></span>
+                        顧客與預約基本資料
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">顧客姓名</label>
+                            <input type="text" id="cust-name" placeholder="請輸入姓名" 
+                                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-400"
+                                oninput="calculatePrice()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">聯絡電話</label>
+                            <input type="tel" id="cust-phone" placeholder="請輸入電話" 
+                                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-400"
+                                oninput="calculatePrice()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">預約日期時間</label>
+                            <input type="datetime-local" id="cust-date" 
+                                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-400"
+                                oninput="calculatePrice()">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Base Service Target -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-light-blue transition-all hover:shadow-md">
+                    <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full brand-gradient text-white flex items-center justify-center text-xs">2</span>
+                        施作部位與足部加價
+                    </h3>
+                    
+                    <div class="w-full">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">施作部位（足部一律加收 +$100）</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="border-2 rounded-xl p-3 flex items-center justify-center gap-2 cursor-pointer transition-all border-sky-500 bg-sky-50/50 text-sky-800 font-medium" id="label-target-hand">
+                                <input type="radio" name="service-target" value="hand" checked class="hidden" onchange="updateTarget('hand')">
+                                <i data-lucide="hand" class="w-4 h-4"></i> 手部美甲
+                            </label>
+                            <label class="border-2 rounded-xl p-3 flex items-center justify-center gap-2 cursor-pointer transition-all border-gray-200 hover:border-sky-300 text-gray-600" id="label-target-foot">
+                                <input type="radio" name="service-target" value="foot" class="hidden" onchange="updateTarget('foot')">
+                                <i data-lucide="footprints" class="w-4 h-4"></i> 足部美甲 (+100)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Choose Gel/Style Type -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-light-blue transition-all hover:shadow-md">
+                    <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full brand-gradient text-white flex items-center justify-center text-xs">3</span>
+                        選擇凝膠款式或造型
+                    </h3>
+
+                    <div class="space-y-4">
+                        <!-- Primary Category Selector -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">主要款式大類</label>
+                            <select id="main-category" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 focus:bg-white text-gray-700" onchange="handleCategoryChange()">
+                                <option value="none">-- 無凝膠項目 (僅進行卸甲/保養) --</option>
+                                <option value="single">單色區 (純色、特殊膠、碎鑽、貓眼、鏡面)</option>
+                                <option value="french">造型區：一、法式設計</option>
+                                <option value="gradient">造型區：二、漸層設計</option>
+                                <option value="style-solid">造型區：三、純色底造型 (1~10指)</option>
+                                <option value="style-basic">造型區：四、基礎特殊膠造型 (1~10指)</option>
+                                <option value="style-advance">造型區：五、進階熱門底造型 (2~10指)</option>
+                                <option value="special-monthly">其他：當月特價款 ($1299)</option>
+                            </select>
+                        </div>
+
+                        <!-- Sub-category Container -->
+                        <div id="sub-category-wrapper" class="hidden bg-sky-50/30 p-4 rounded-xl border border-dashed border-light-blue">
+                            <label id="sub-category-label" class="block text-xs font-semibold text-sky-800 uppercase tracking-wider mb-2">細項款式選擇</label>
+                            <div id="sub-category-inputs" class="space-y-2">
+                                <!-- Dynamic Controls Rendered via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Removal Services -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-light-blue transition-all hover:shadow-md">
+                    <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full brand-gradient text-white flex items-center justify-center text-xs">4</span>
+                        卸甲服務（續做/純卸/單指）
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Left Option: Removal Type -->
+                        <div class="space-y-3">
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">卸甲方案類型</label>
+                            <select id="removal-type" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none text-gray-700" onchange="calculatePrice()">
+                                <option value="none">-- 無卸甲需求 --</option>
+                                <option value="our-store">本店卸甲 (續做免費 / 純卸 $300)</option>
+                                <option value="other-store">他店卸甲 (續做 $300 / 純卸 $400)</option>
+                            </select>
+                            <div class="text-[11px] text-gray-400 bg-gray-50 p-2 rounded-lg leading-relaxed">
+                                💡 <span class="font-bold text-gray-600">系統自動續做判定：</span> 當「凝膠款式」有選取時，系統會自動套用較便宜的「續做價格」！
+                            </div>
+                        </div>
+
+                        <!-- Right Option: Single Finger Removal -->
+                        <div class="space-y-3 border-t md:border-t-0 md:border-l border-coffee pt-4 md:pt-0 md:pl-6">
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">單指卸甲（若不卸整手）</label>
+                            <div class="flex items-center justify-between p-2 bg-stone-50 rounded-lg">
+                                <div>
+                                    <span class="text-sm font-medium text-gray-700">單指卸甲數量</span>
+                                    <p class="text-xs text-gray-400">本店 $30/指 | 他店 $40/指</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('single-removal', -1)">-</button>
+                                    <span id="single-removal-count" class="w-8 text-center font-bold text-sky-800">0</span>
+                                    <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('single-removal', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Custom Add-on Details -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-light-blue transition-all hover:shadow-md">
+                    <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full brand-gradient text-white flex items-center justify-center text-xs">5</span>
+                        特殊追加項目 (跳色、指數、貼飾、延甲)
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Left Column: Numeric Counters -->
+                        <div class="space-y-4">
+                            <!-- Jump Color Counter with HIGH PRICE LOGIC -->
+                            <div class="p-2 hover:bg-stone-50 rounded-lg space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-sm font-semibold text-gray-700">跳色數量</span>
+                                        <p class="text-xs text-gray-400">+$50 / 每跳一色 (底價以高價計)</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('jump-color', -1)">-</button>
+                                        <span id="jump-color-count" class="w-8 text-center font-bold text-sky-800">0</span>
+                                        <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('jump-color', 1)">+</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Dynamic High Price Jump Color Option -->
+                                <div id="jump-color-high-wrapper" class="hidden bg-sky-50/50 p-2 rounded-lg border border-sky-100 animate-fade-in space-y-1.5">
+                                    <label class="block text-[11px] font-semibold text-sky-800">搭配高價跳色膠款：</label>
+                                    <select id="jump-color-high-tier" class="w-full bg-white border border-stone-200 rounded px-2 py-1 text-xs text-gray-700 focus:outline-none" onchange="calculatePrice()">
+                                        <option value="0">同價款 / 無更高價搭配</option>
+                                        <option value="999">特殊膠 / 碎鑽膠 (整手以 $999 計價)</option>
+                                        <option value="1099">貓眼系列 (整手以 $1099 計價)</option>
+                                        <option value="1299">鏡面系列 (整手以 $1299 計價)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Pure Ice Cube -->
+                            <div class="flex items-center justify-between p-2 hover:bg-stone-50 rounded-lg">
+                                <div>
+                                    <span class="text-sm font-medium text-gray-700">純色冰塊指數</span>
+                                    <p class="text-xs text-gray-400">+$80 / 指</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('ice-cube', -1)">-</button>
+                                    <span id="ice-cube-count" class="w-8 text-center font-bold text-sky-800">0</span>
+                                    <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('ice-cube', 1)">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Full Diamonds -->
+                            <div class="flex items-center justify-between p-2 hover:bg-stone-50 rounded-lg">
+                                <div>
+                                    <span class="text-sm font-medium text-gray-700">滿鑽指數</span>
+                                    <p class="text-xs text-gray-400">+$200 / 指</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('full-diamond', -1)">-</button>
+                                    <span id="full-diamond-count" class="w-8 text-center font-bold text-sky-800">0</span>
+                                    <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('full-diamond', 1)">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Extension -->
+                            <div class="flex items-center justify-between p-2 hover:bg-stone-50 rounded-lg">
+                                <div>
+                                    <span class="text-sm font-medium text-gray-700">延甲指數</span>
+                                    <p class="text-xs text-gray-400">+$150 / 指</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('extension', -1)">-</button>
+                                    <span id="extension-count" class="w-8 text-center font-bold text-sky-800">0</span>
+                                    <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('extension', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Checkboxes & Special Pricing Inputs -->
+                        <div class="space-y-3 border-t md:border-t-0 md:border-l border-coffee pt-4 md:pt-0 md:pl-6">
+                            <!-- Gel Repair -->
+                            <div class="flex items-center justify-between p-2 hover:bg-stone-50 rounded-lg">
+                                <div>
+                                    <span class="text-sm font-medium text-gray-700">補甲指數 (纖維膠)</span>
+                                    <p class="text-xs text-gray-400">+$100 / 指</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('repair', -1)">-</button>
+                                    <span id="repair-count" class="w-8 text-center font-bold text-sky-800">0</span>
+                                    <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-sky-50 text-gray-600 font-bold" onclick="adjustCount('repair', 1)">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Stickers -->
+                            <div class="flex items-center justify-between p-2 hover:bg-stone-50 rounded-lg">
+                                <div>
+                                    <span class="text-sm font-medium text-gray-700">貼紙張數</span>
+                                    <p class="text-xs text-gray-400">+$30 / 張</p>
+                                </div>
+                                <input type="number" id="sticker-count" min="0" value="0" class="w-16 border border-stone-200 rounded px-2 py-1 text-center bg-stone-50 text-gray-700" onchange="calculatePrice()">
+                            </div>
+
+                            <!-- Custom Diamond Price -->
+                            <div class="flex items-center justify-between p-2 hover:bg-stone-50 rounded-lg">
+                                <div>
+                                    <span class="text-sm font-medium text-gray-700">單貼鑽累計金額</span>
+                                    <p class="text-xs text-gray-400">一指約 $5 - $50</p>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-sm text-gray-500">$</span>
+                                    <input type="number" id="diamond-price" min="0" value="0" class="w-20 border border-stone-200 rounded px-2 py-1 text-right bg-stone-50 text-gray-700" onchange="calculatePrice()">
+                                </div>
+                            </div>
+
+                            <!-- Custom Tile Price -->
+                            <div class="flex items-center justify-between p-2 hover:bg-stone-50 rounded-lg">
+                                <div>
+                                    <span class="text-sm font-medium text-gray-700">手繪花磚累計金額</span>
+                                    <p class="text-xs text-gray-400">單指約 $150 - $350</p>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-sm text-gray-500">$</span>
+                                    <input type="number" id="tile-price" min="0" value="0" class="w-20 border border-stone-200 rounded px-2 py-1 text-right bg-stone-50 text-gray-700" onchange="calculatePrice()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 6: Maintenance & Care Services -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-light-blue transition-all hover:shadow-md">
+                    <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full brand-gradient text-white flex items-center justify-center text-xs">6</span>
+                        加購/單做保養項目
+                    </h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Hand Deep Moist -->
+                        <div class="border border-coffee rounded-xl p-3 flex flex-col justify-between hover:bg-stone-50/50 transition-colors">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" id="care-hand-deep" class="mt-1 rounded text-stone-600 focus:ring-stone-400" onchange="calculatePrice()">
+                                <div>
+                                    <span class="text-sm font-semibold text-gray-800">手部深層保濕保養</span>
+                                    <div class="flex gap-2 items-center mt-1">
+                                        <span class="text-xs bg-stone-200 text-stone-800 px-1.5 py-0.5 rounded">原價 $899</span>
+                                        <span class="text-xs bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-medium">凝膠加購價 $799</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Foot Deep Moist -->
+                        <div class="border border-coffee rounded-xl p-3 flex flex-col justify-between hover:bg-stone-50/50 transition-colors">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" id="care-foot-deep" class="mt-1 rounded text-stone-600 focus:ring-stone-400" onchange="calculatePrice()">
+                                <div>
+                                    <span class="text-sm font-semibold text-gray-800">足部深層保濕保養</span>
+                                    <div class="flex gap-2 items-center mt-1">
+                                        <span class="text-xs bg-stone-200 text-stone-800 px-1.5 py-0.5 rounded">原價 $1299</span>
+                                        <span class="text-xs bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-medium">凝膠加購價 $899</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Foot Callus Deep -->
+                        <div class="border border-coffee rounded-xl p-3 flex flex-col justify-between hover:bg-stone-50/50 transition-colors">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" id="care-foot-callus-deep" class="mt-1 rounded text-stone-600 focus:ring-stone-400" onchange="calculatePrice()">
+                                <div>
+                                    <span class="text-sm font-semibold text-gray-800">足部去繭深層保養</span>
+                                    <div class="flex gap-2 items-center mt-1">
+                                        <span class="text-xs bg-stone-200 text-stone-800 px-1.5 py-0.5 rounded">原價 $1399</span>
+                                        <span class="text-xs bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-medium">凝膠加購價 $999</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Pure Foot Callus Only -->
+                        <div class="border border-coffee rounded-xl p-3 flex flex-col justify-between hover:bg-stone-50/50 transition-colors">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" id="care-foot-callus-only" class="mt-1 rounded text-stone-600 focus:ring-stone-400" onchange="calculatePrice()">
+                                <div>
+                                    <span class="text-sm font-semibold text-gray-800">純足底去繭 (單項)</span>
+                                    <div class="flex gap-2 items-center mt-1">
+                                        <span class="text-xs bg-stone-200 text-stone-800 px-1.5 py-0.5 rounded">原價 $350</span>
+                                        <span class="text-xs bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-medium">加購優惠價 $300</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Hand Basic Care -->
+                        <div class="border border-coffee rounded-xl p-3 flex flex-col justify-between hover:bg-stone-50/50 transition-colors">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" id="care-hand-basic" class="mt-1 rounded text-stone-600 focus:ring-stone-400" onchange="calculatePrice()">
+                                <div>
+                                    <span class="text-sm font-semibold text-gray-800">手部基礎保養 (修型/甘皮)</span>
+                                    <div class="flex gap-2 items-center mt-1">
+                                        <span class="text-xs bg-stone-200 text-stone-800 px-1.5 py-0.5 rounded">一律 $300</span>
+                                        <span class="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-semibold">純卸加購 $150</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Foot Basic Care -->
+                        <div class="border border-coffee rounded-xl p-3 flex flex-col justify-between hover:bg-stone-50/50 transition-colors">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" id="care-foot-basic" class="mt-1 rounded text-stone-600 focus:ring-stone-400" onchange="calculatePrice()">
+                                <div>
+                                    <span class="text-sm font-semibold text-gray-800">足部基礎保養 (修型/甘皮)</span>
+                                    <div class="flex gap-2 items-center mt-1">
+                                        <span class="text-xs bg-stone-200 text-stone-800 px-1.5 py-0.5 rounded">一律 $300</span>
+                                        <span class="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-semibold">純卸加購 $150</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Side Hard Skin -->
+                        <div class="border border-coffee rounded-xl p-3 flex flex-col justify-between hover:bg-stone-50/50 transition-colors">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" id="care-hard-skin" class="mt-1 rounded text-stone-600 focus:ring-stone-400" onchange="calculatePrice()">
+                                <div>
+                                    <span class="text-sm font-semibold text-gray-800">兩側硬皮修整</span>
+                                    <div class="flex gap-2 items-center mt-1">
+                                        <span class="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-medium">一律 $100</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW Step 7: Color Code & Notes & Payment -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-light-blue transition-all hover:shadow-md">
+                    <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full brand-gradient text-white flex items-center justify-center text-xs"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></span>
+                        美甲備註、色號與付款資訊
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">施作色號紀錄</label>
+                            <input type="text" id="cust-color-code" placeholder="例：底色 M24、跳色 N15、追光貓眼 03" 
+                                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-400"
+                                oninput="calculatePrice()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">付款方式</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="border-2 rounded-xl p-2.5 flex items-center justify-center gap-2 cursor-pointer transition-all border-sky-500 bg-sky-50/50 text-sky-800 font-medium text-sm" id="pay-cash-label">
+                                    <input type="radio" name="pay-method" value="現金" checked class="hidden" onchange="updatePayMethod('現金')">
+                                    <i data-lucide="banknote" class="w-4 h-4"></i> 現金支付
+                                </label>
+                                <label class="border-2 rounded-xl p-2.5 flex items-center justify-center gap-2 cursor-pointer transition-all border-gray-200 hover:border-sky-300 text-gray-600 text-sm" id="pay-transfer-label">
+                                    <input type="radio" name="pay-method" value="轉帳" class="hidden" onchange="updatePayMethod('轉帳')">
+                                    <i data-lucide="smartphone" class="w-4 h-4"></i> 轉帳支付
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Receipt & Calculations (Right Side / Sticky) -->
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Main Invoice Panel -->
+                <div class="bg-white rounded-2xl shadow-lg border-2 border-stone-200 p-6 sticky top-24">
+                    <div class="border-b border-light-blue pb-4 mb-4 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="receipt" class="w-5 h-5 text-sky-600"></i>
+                            <h3 class="font-bold text-gray-900">即時報價明細</h3>
+                        </div>
+                        <button onclick="resetCalculator()" class="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> 重設全部
+                        </button>
+                    </div>
+
+                    <!-- Selected Target Banner -->
+                    <div class="bg-sky-50/60 text-sky-800 rounded-xl px-3 py-2 text-xs font-semibold mb-4 flex items-center justify-between" id="receipt-target-banner">
+                        <span>施作部位: 手部美甲</span>
+                        <span class="bg-sky-100 text-sky-900 px-2 py-0.5 rounded-md">手部基礎計價</span>
+                    </div>
+
+                    <!-- Items List -->
+                    <div id="receipt-items" class="space-y-3 min-h-[100px] max-h-[220px] overflow-y-auto pr-1">
+                        <div class="text-gray-400 text-center py-8 text-sm">
+                            <i data-lucide="shopping-bag" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                            尚未選取任何服務項目
+                        </div>
+                    </div>
+
+                    <!-- Pricing Rules / Warning Alerts -->
+                    <div id="calc-rules-tips" class="mt-4 pt-3 border-t border-dashed border-gray-200 text-xs text-amber-800 bg-amber-50/50 p-3 rounded-lg hidden">
+                        <div class="flex gap-1.5">
+                            <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                            <div class="space-y-1" id="rules-tips-content"></div>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Manual Discount Field & Final Total Display -->
+                    <div class="border-t border-stone-200 mt-4 pt-4 space-y-3">
+                        <div class="flex justify-between items-center bg-rose-50/30 p-2.5 rounded-xl border border-rose-100">
+                            <span class="text-xs font-bold text-rose-800 flex items-center gap-1">
+                                <i data-lucide="gift" class="w-3.5 h-3.5"></i> 自訂折價／優惠折扣
+                            </span>
+                            <div class="flex items-center gap-1">
+                                <span class="text-xs text-stone-500">-$</span>
+                                <input type="number" id="cust-discount" min="0" placeholder="0" class="w-20 border border-stone-200 rounded px-2 py-1 text-right text-xs bg-white text-rose-700 font-bold focus:outline-none focus:ring-1 focus:ring-rose-300" oninput="calculatePrice()">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-baseline mb-4">
+                            <span class="text-sm font-semibold text-gray-600">實收總計</span>
+                            <span class="text-3xl font-black text-sky-700" id="grand-total">$0</span>
+                        </div>
+                    </div>
+
+                    <!-- COPY AND EXPORT SECTION -->
+                    <div class="border-t border-dashed border-stone-200 pt-4 mt-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-gray-500 tracking-wider flex items-center gap-1">
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i> LINE 報價文字預覽 & 複製區
+                            </span>
+                            <span class="text-[10px] bg-sky-50 text-sky-700 px-2 py-0.5 rounded font-semibold">格式已最佳化</span>
+                        </div>
+
+                        <!-- Real-time Text Copy Area -->
+                        <div class="relative">
+                            <textarea id="quote-clipboard-textarea" readonly 
+                                class="w-full h-36 bg-stone-50/50 border border-stone-200 rounded-lg p-2.5 text-[11px] text-gray-600 font-mono focus:outline-none resize-none leading-relaxed"></textarea>
+                            <div class="absolute bottom-2 right-2 flex gap-1.5">
+                                <button onclick="saveAndCopyQuote()" id="copy-btn" 
+                                    class="bg-sky-700 hover:bg-sky-800 text-white font-bold py-1.5 px-3 rounded-md shadow-sm transition-all flex items-center gap-1 text-[11px]">
+                                    <i data-lucide="cloud-upload" class="w-3 h-3"></i> <span>儲存並複製</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="copy-toast" class="hidden text-center text-xs text-emerald-700 font-semibold mt-1">
+                            🎉 已儲存顧客檔案並複製成功！
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==================== TAB 2: HISTORY RECORD ==================== -->
+        <div id="tab-history" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-light-blue">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-light-blue">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                            <i data-lucide="database" class="text-sky-600"></i>
+                            顧客歷史檔案與施作紀錄庫
+                        </h2>
+                        <p class="text-sm text-gray-500 mt-1">搜尋色號、電話、付款方式或姓名，隨時追蹤歷史細節！</p>
+                    </div>
+                    <button onclick="clearAllLocalHistory()" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-medium transition-colors">
+                        清空本機暫存歷史
+                    </button>
+                </div>
+
+                <!-- Search and Filter Bar (萬能關鍵字搜尋) -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="md:col-span-2 relative">
+                        <i data-lucide="search" class="absolute left-3 top-3.5 w-4 h-4 text-gray-400"></i>
+                        <input type="text" id="history-search" placeholder="🔍 萬能搜尋：顧客姓名、電話、施作色號、付款、明細..." 
+                            class="w-full pl-9 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-400"
+                            oninput="renderHistoryList()">
+                    </div>
+                    <div>
+                        <select id="history-filter-part" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-3 text-sm text-gray-700 focus:outline-none" onchange="renderHistoryList()">
+                            <option value="all">-- 所有部位 --</option>
+                            <option value="hand">手部施作</option>
+                            <option value="foot">足部施作</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-end">
+                        <span class="text-xs text-gray-400 font-medium">找到紀錄數：<span id="history-count-text" class="text-sky-700 font-bold">0</span> 筆</span>
+                    </div>
+                </div>
+
+                <!-- History Records Grid -->
+                <div id="history-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[300px]">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: MENU BROWSER ==================== -->
+        <div id="tab-menu" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-light-blue">
+                <div class="max-w-3xl mx-auto text-center mb-8">
+                    <span class="text-sky-700 font-semibold text-sm tracking-widest uppercase">Price List</span>
+                    <h2 class="text-3xl font-extrabold text-gray-900 mt-1">森語美甲 沙龍收費表</h2>
+                    <p class="text-gray-500 mt-2 text-sm">1/13 起調整新價目表 ─ 舒適優質的森林系手足呵護</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                    <!-- Column 1: 手美甲-單色區 -->
+                    <div class="space-y-6">
+                        <div class="border border-light-blue rounded-2xl p-5 bg-sky-50/10">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="p-1.5 bg-sky-100 text-sky-700 rounded-lg"><i data-lucide="hand" class="w-4 h-4"></i></span>
+                                <h4 class="font-bold text-lg text-gray-900">手部單色區</h4>
+                            </div>
+                            <ul class="space-y-3.5 text-sm">
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">單色 (純色)</span>
+                                    <span class="font-bold text-sky-800">$899</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">特殊膠 (珠光 / 砂糖 / 毛呢 / 蛋殼 / 亮片)</span>
+                                    <span class="font-bold text-sky-800">$999</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">碎鑽膠</span>
+                                    <span class="font-bold text-sky-800">$999</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <div>
+                                        <span class="font-medium block text-gray-700">貓眼系列 (一般 / 晶石)</span>
+                                        <span class="text-xs text-gray-400">含吸寬光、側光、玻璃珠、追光</span>
+                                    </div>
+                                    <span class="font-bold text-sky-800 align-middle">$1099</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">鏡面 (十隻)</span>
+                                    <span class="font-bold text-sky-800">$1299</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="font-medium text-gray-700">純色冰塊 (單指)</span>
+                                    <span class="font-bold text-sky-800">$80</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Column 1.2: 卸甲服務價目 -->
+                        <div class="border border-light-blue rounded-2xl p-5 bg-sky-50/10">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="p-1.5 bg-sky-100 text-sky-700 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></span>
+                                <h4 class="font-bold text-lg text-gray-900">卸甲專區</h4>
+                            </div>
+                            <ul class="space-y-3.5 text-sm">
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">本店卸甲續做</span>
+                                    <span class="font-bold text-emerald-600">免費 $0</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">本店純卸甲 (全手)</span>
+                                    <span class="font-bold text-sky-800">$300</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">本店卸甲 (單指)</span>
+                                    <span class="font-bold text-sky-800">$30 / 指</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">他店卸甲續做</span>
+                                    <span class="font-bold text-sky-800">$300</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">他店純卸甲 (全手)</span>
+                                    <span class="font-bold text-sky-800">$400</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="font-medium text-gray-700">他店卸甲 (單指)</span>
+                                    <span class="font-bold text-sky-800">$40 / 指</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: 手美甲-造型區一 (法式) & 保養 -->
+                    <div class="space-y-6">
+                        <div class="border border-light-blue rounded-2xl p-5 bg-sky-50/10">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="p-1.5 bg-sky-100 text-sky-700 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4"></i></span>
+                                <h4 class="font-bold text-lg text-gray-900">造型區 (一) ─ 法式系列</h4>
+                            </div>
+                            <ul class="space-y-3.5 text-sm">
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <div>
+                                        <span class="font-medium text-gray-700">經典法式 (亮片/銀線/愛心/雙線)</span>
+                                        <span class="text-xs block text-gray-400">任何法式造型，有無底色價格統一</span>
+                                    </div>
+                                    <span class="font-bold text-sky-800">$1299</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">吸的法式貓眼</span>
+                                    <span class="font-bold text-sky-800">$1199</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">腮紅</span>
+                                    <span class="font-bold text-sky-800">$1499</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">漸層 / 晶石 / 蹦迪 / 鏡面法式</span>
+                                    <span class="font-bold text-sky-800">$1499</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">立體鏡面法式 / 貓眼底+鏡面法式</span>
+                                    <span class="font-bold text-sky-800">$1599</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">彩色法式 (三色以上)</span>
+                                    <span class="font-bold text-sky-800">$1499</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="font-medium text-gray-700">愛心貓眼/法式貓眼 + 法式</span>
+                                    <span class="font-bold text-sky-800">$1799</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Care and Pedicure -->
+                        <div class="border border-light-blue rounded-2xl p-5 bg-sky-50/10">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="p-1.5 bg-sky-100 text-sky-700 rounded-lg"><i data-lucide="flower" class="w-4 h-4"></i></span>
+                                <h4 class="font-bold text-lg text-gray-900">保養與特殊加收</h4>
+                            </div>
+                            <ul class="space-y-3.5 text-sm">
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <span class="font-medium text-gray-700">足部美甲加計</span>
+                                    <span class="font-bold text-stone-700">手部報價 +$100</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <div>
+                                        <span class="font-medium text-gray-700">手部深層保濕</span>
+                                        <span class="text-xs block text-gray-400">凝膠項目加購價: $799</span>
+                                    </div>
+                                    <span class="font-bold text-stone-700">原價 $899</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <div>
+                                        <span class="font-medium text-gray-700">足部深層保濕</span>
+                                        <span class="text-xs block text-gray-400">凝膠項目加購價: $899</span>
+                                    </div>
+                                    <span class="font-bold text-stone-700">原價 $1299</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <div>
+                                        <span class="font-medium text-gray-700">足部去繭深層保養</span>
+                                        <span class="text-xs block text-gray-400">凝膠項目加購價: $999</span>
+                                    </div>
+                                    <span class="font-bold text-stone-700">原價 $1399</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <div>
+                                        <span class="font-medium text-gray-700">純足底去繭</span>
+                                        <span class="text-xs block text-gray-400">搭配項目加購價: $300</span>
+                                    </div>
+                                    <span class="font-bold text-stone-700">原價 $350</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-2 border-dashed border-gray-100">
+                                    <div>
+                                        <span class="font-medium text-gray-700">手/足部基礎保養</span>
+                                        <span class="text-xs block text-gray-400">純卸甲加購價: $150</span>
+                                    </div>
+                                    <span class="font-bold text-stone-700">一律 $300</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="font-medium text-gray-700">兩側硬皮修整</span>
+                                    <span class="font-bold text-stone-700">一律 $100</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-light-blue py-6 mt-12 text-center text-xs text-gray-400">
+        <p>© 2026 森語美甲 Forest Whisper. All rights reserved.</p>
+        <p class="mt-1">由 智慧美甲與顧客歷史雲端資料庫精算，符合最新調整報價邏輯。</p>
+    </footer>
+
+    <!-- JS Logic -->
+    <script>
+        // Store quotes in LocalStorage as local cloud state
+        let savedHistoryQuotes = [];
+        let paymentMethod = '現金'; // Default
+        
+        try {
+            const raw = localStorage.getItem('forest_whisper_cloud_quotes_v2');
+            if (raw) {
+                savedHistoryQuotes = JSON.parse(raw);
+            }
+        } catch(e) {
+            console.warn("LocalStorage 無法存取，使用記憶體儲存");
+        }
+
+        // App States
+        let selectedTarget = 'hand'; 
+        let counters = {
+            'jump-color': 0, 
+            'ice-cube': 0,
+            'full-diamond': 0,
+            'extension': 0,
+            'repair': 0,
+            'single-removal': 0 
+        };
+
+        let lastGeneratedReceiptItems = [];
+        let lastGeneratedTotalBeforeDiscount = 0;
+        let lastGeneratedFinalTotal = 0;
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            handleCategoryChange(); 
+            calculatePrice();
+            updateHistoryBadge();
+        });
+
+        // Tab Switching
+        function switchTab(tab) {
+            const calcTab = document.getElementById('tab-calc');
+            const historyTab = document.getElementById('tab-history');
+            const menuTab = document.getElementById('tab-menu');
+            
+            const calcBtn = document.getElementById('tab-calc-btn');
+            const historyBtn = document.getElementById('tab-history-btn');
+            const menuBtn = document.getElementById('tab-menu-btn');
+
+            calcTab.classList.add('hidden');
+            historyTab.classList.add('hidden');
+            menuTab.classList.add('hidden');
+
+            calcBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-gray-600 hover:text-stone-800";
+            historyBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-gray-600 hover:text-stone-800";
+            menuBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-gray-600 hover:text-stone-800";
+
+            if (tab === 'calc') {
+                calcTab.classList.remove('hidden');
+                calcBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 bg-white text-stone-800 shadow-sm border border-stone-200";
+            } else if (tab === 'history') {
+                historyTab.classList.remove('hidden');
+                historyBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 bg-white text-stone-800 shadow-sm border border-stone-200";
+                renderHistoryList();
+            } else {
+                menuTab.classList.remove('hidden');
+                menuBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 bg-white text-stone-800 shadow-sm border border-stone-200";
+            }
+        }
+
+        // Adjust Counters
+        function adjustCount(item, amount) {
+            const current = counters[item];
+            const maxLimit = (item === 'jump-color') ? 5 : 10;
+            const newValue = Math.max(0, Math.min(maxLimit, current + amount));
+            counters[item] = newValue;
+            document.getElementById(`${item}-count`).textContent = newValue;
+
+            if (item === 'jump-color') {
+                const wrapper = document.getElementById('jump-color-high-wrapper');
+                if (newValue > 0) {
+                    wrapper.classList.remove('hidden');
+                } else {
+                    wrapper.classList.add('hidden');
+                    document.getElementById('jump-color-high-tier').value = "0"; 
+                }
+            }
+            calculatePrice();
+        }
+
+        // Update Payment Method Radio UI
+        function updatePayMethod(method) {
+            paymentMethod = method;
+            const cashLabel = document.getElementById('pay-cash-label');
+            const transferLabel = document.getElementById('pay-transfer-label');
+
+            if (method === '現金') {
+                cashLabel.className = "border-2 rounded-xl p-2.5 flex items-center justify-center gap-2 cursor-pointer transition-all border-sky-500 bg-sky-50/50 text-sky-800 font-medium text-sm";
+                transferLabel.className = "border rounded-xl p-2.5 flex items-center justify-center gap-2 cursor-pointer transition-all border-gray-200 hover:border-sky-300 text-gray-600 text-sm";
+            } else {
+                transferLabel.className = "border-2 rounded-xl p-2.5 flex items-center justify-center gap-2 cursor-pointer transition-all border-sky-500 bg-sky-50/50 text-sky-800 font-medium text-sm";
+                cashLabel.className = "border rounded-xl p-2.5 flex items-center justify-center gap-2 cursor-pointer transition-all border-gray-200 hover:border-sky-300 text-gray-600 text-sm";
+            }
+            calculatePrice();
+        }
+
+        // Update active target (Hand / Foot)
+        function updateTarget(target) {
+            selectedTarget = target;
+            const handLabel = document.getElementById('label-target-hand');
+            const footLabel = document.getElementById('label-target-foot');
+            const banner = document.getElementById('receipt-target-banner');
+
+            if (target === 'hand') {
+                handLabel.className = "border-2 rounded-xl p-3 flex items-center justify-center gap-2 cursor-pointer transition-all border-sky-500 bg-sky-50/50 text-sky-800 font-medium";
+                footLabel.className = "border rounded-xl p-3 flex items-center justify-center gap-2 cursor-pointer transition-all border-gray-200 hover:border-sky-300 text-gray-600";
+                banner.innerHTML = `<span>施作部位: 手部美甲</span><span class="bg-sky-100 text-sky-900 px-2 py-0.5 rounded-md">手部基礎計價</span>`;
+            } else {
+                footLabel.className = "border-2 rounded-xl p-3 flex items-center justify-center gap-2 cursor-pointer transition-all border-sky-500 bg-sky-50/50 text-sky-800 font-medium";
+                handLabel.className = "border rounded-xl p-3 flex items-center justify-center gap-2 cursor-pointer transition-all border-gray-200 hover:border-sky-300 text-gray-600";
+                banner.innerHTML = `<span>施作部位: 足部美甲</span><span class="bg-stone-200 text-stone-900 px-2 py-0.5 rounded-md">加價款 (+$100)</span>`;
+            }
+            calculatePrice();
+        }
+
+        // Handle category change (Dynamically populates sub-options)
+        function handleCategoryChange() {
+            const cat = document.getElementById('main-category').value;
+            const wrapper = document.getElementById('sub-category-wrapper');
+            const inputs = document.getElementById('sub-category-inputs');
+
+            if (cat === 'none') {
+                wrapper.classList.add('hidden');
+                calculatePrice();
+                return;
+            }
+
+            wrapper.classList.remove('hidden');
+            let htmlContent = '';
+
+            switch (cat) {
+                case 'single':
+                    htmlContent = `
+                        <select id="sub-choice" class="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none font-medium" onchange="calculatePrice()">
+                            <option value="899">單色 (純色) — $899</option>
+                            <option value="999">特殊膠 (珠光/砂糖/毛呢/蛋殼/亮片) — $999</option>
+                            <option value="999-diamond">碎鑽膠 — $999</option>
+                            <option value="1099">一般/晶石貓眼 (吸寬光/側光/追光/玻璃珠) — $1099</option>
+                            <option value="1299">鏡面 (十隻) — $1299</option>
+                        </select>
+                    `;
+                    break;
+                case 'french':
+                    htmlContent = `
+                        <select id="sub-choice" class="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none" onchange="calculatePrice()">
+                            <option value="1299">一般法式 (亮片/銀線/愛心/雙線/任何法式) — $1299</option>
+                            <option value="1199">吸的法式貓眼 — $1199</option>
+                            <option value="1499">腮紅設計 — $1499</option>
+                            <option value="1499-grad">漸層法式 — $1499</option>
+                            <option value="1499-cat">晶石/蹦迪法式 — $1499</option>
+                            <option value="1499-mirror">鏡面法式 — $1499</option>
+                            <option value="1499-color">彩色法式 (三色以上) — $1499</option>
+                            <option value="1599-mirror">立體鏡面法式 — $1599</option>
+                            <option value="1599-catmirror">貓眼底+鏡面法式 — $1599</option>
+                            <option value="1799-blush">腮紅法式 — $1799</option>
+                            <option value="1799-catfrench">愛心貓眼 / 法式貓眼+法式 — $1799</option>
+                        </select>
+                        <label class="flex items-center gap-2 mt-2 cursor-pointer">
+                            <input type="checkbox" id="cat-french-mirror-add" class="rounded text-sky-600 focus:ring-sky-400" onchange="calculatePrice()">
+                            <span class="text-xs text-gray-500 font-medium">貓眼底+法式+鏡面 (加價 $100)</span>
+                        </label>
+                    `;
+                    break;
+                case 'gradient':
+                    htmlContent = `
+                        <select id="sub-choice" class="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none" onchange="calculatePrice()">
+                            <option value="1299">雙色漸層 — $1299</option>
+                            <option value="1299-sparkle">璀璨 / 亮片漸層 — $1299</option>
+                            <option value="1499-mirror">鏡面漸層 — $1499</option>
+                            <option value="1499-crystal">晶石 / 蹦迪漸層 — $1499</option>
+                            <option value="1499-french">漸層法式 — $1499</option>
+                            <option value="1699-mirror">漸層鏡面法式 — $1699</option>
+                        </select>
+                    `;
+                    break;
+                case 'style-solid':
+                    htmlContent = `
+                        <div class="text-xs text-stone-600 font-medium mb-1">純色底 $899 搭配特殊指造型</div>
+                        <select id="sub-choice" class="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none" onchange="calculatePrice()">
+                            <option value="1099">1 ~ 2 指造型 + 單色底 — $1099</option>
+                            <option value="1399">3 ~ 4 指造型 + 單色底 — $1399</option>
+                            <option value="1599">5 ~ 6 指造型 + 單色底 — $1599</option>
+                            <option value="1799">7 ~ 8 指造型 + 單色底 — $1799</option>
+                            <option value="1999">9 ~ 10 指造型 + 單色底 — $1999</option>
+                        </select>
+                    `;
+                    break;
+                case 'style-basic':
+                    htmlContent = `
+                        <div class="text-xs text-stone-600 font-medium mb-1">特殊膠 $999 搭配造型</div>
+                        <select id="sub-choice" class="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none" onchange="calculatePrice()">
+                            <option value="1199">1 ~ 2 指造型 + 特殊底 — $1199</option>
+                            <option value="1499">3 ~ 4 指造型 + 特殊底 — $1499</option>
+                            <option value="1699">5 ~ 6 指造型 + 特殊底 — $1699</option>
+                            <option value="1899">7 ~ 8 指造型 + 特殊底 — $1899</option>
+                            <option value="2099">9 ~ 10 指造型 + 特殊底 — $2099</option>
+                        </select>
+                    `;
+                    break;
+                case 'style-advance':
+                    htmlContent = `
+                        <div class="text-xs text-stone-600 font-medium mb-1">熱門底 $1099 搭配造型</div>
+                        <select id="sub-choice" class="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none" onchange="calculatePrice()">
+                            <option value="1399">2 指造型 + 進階底 — $1399</option>
+                            <option value="1499">3 指造型 + 進階底 — $1499</option>
+                            <option value="1599">4 指造型 + 進階底 — $1599</option>
+                            <option value="1699">5 指造型 + 進階底 — $1699</option>
+                            <option value="1799">6 指造型 + 進階底 — $1799</option>
+                            <option value="1899">7 指造型 + 進階底 — $1899</option>
+                            <option value="1999">8 指造型 + 進階底 — $1999</option>
+                            <option value="2099">9 指造型 + 進階底 — $2099</option>
+                            <option value="2199">10 指造型 + 進階底 — $2199</option>
+                        </select>
+                    `;
+                    break;
+                case 'special-monthly':
+                    htmlContent = `
+                        <div class="text-xs text-stone-600 font-medium mb-1">當期主打特惠設計款</div>
+                        <div class="bg-white p-3 border rounded-lg text-sm text-gray-700 flex justify-between font-bold">
+                            <span>當月特價款造型</span>
+                            <span class="text-sky-700">$1299</span>
+                        </div>
+                    `;
+                    break;
+            }
+
+            inputs.innerHTML = htmlContent;
+            calculatePrice();
+        }
+
+        // Price Logic engine
+        function calculatePrice() {
+            let total = 0;
+            let listItems = [];
+            let tips = [];
+
+            // 1. Check Gel Service & Base Price
+            const mainCat = document.getElementById('main-category').value;
+            let gelPrice = 0;
+            let gelName = '';
+            const hasGel = mainCat !== 'none';
+
+            if (hasGel) {
+                if (mainCat === 'special-monthly') {
+                    gelPrice = 1299;
+                    gelName = '當月特價款';
+                } else {
+                    const selectElem = document.getElementById('sub-choice');
+                    const selectedText = selectElem.options[selectElem.selectedIndex].text;
+                    gelPrice = parseInt(selectElem.value);
+                    gelName = selectedText.split('—')[0].trim();
+                }
+            }
+
+            // 2. High Price Jump Color Logic (以高價款計價)
+            const jumpColorQty = counters['jump-color'];
+            let jumpColorExtraCost = 0;
+
+            if (jumpColorQty > 0 && hasGel) {
+                const highTierSelect = document.getElementById('jump-color-high-tier');
+                const highTierPrice = parseInt(highTierSelect.value) || 0;
+
+                if (highTierPrice > gelPrice) {
+                    const priceDiff = highTierPrice - gelPrice;
+                    gelPrice = highTierPrice; 
+                    gelName += ` (配合高價跳色升級)`;
+                    tips.push(`💡 **跳色高價計費**：整手底色調高至 $${highTierPrice} 計算（高低差 +$${priceDiff}）。`);
+                }
+                jumpColorExtraCost = jumpColorQty * 50;
+            }
+
+            // Push base gel service if active
+            if (hasGel) {
+                let finalBasePrice = gelPrice;
+                if (selectedTarget === 'foot') {
+                    finalBasePrice += 100;
+                    gelName += ' (含足部 +$100)';
+                }
+                listItems.push({ name: `💅 ${gelName}`, price: finalBasePrice });
+                total += finalBasePrice;
+            }
+
+            // Push jump color extra fee to list
+            if (jumpColorQty > 0) {
+                listItems.push({ name: `🎨 跳色服務 x ${jumpColorQty}色 (+$50/色)`, price: jumpColorExtraCost });
+                total += jumpColorExtraCost;
+            }
+
+            // 3. Removal Logic
+            const removalType = document.getElementById('removal-type').value;
+            const hasRemoval = removalType !== 'none';
+            const isPureRemoval = hasRemoval && !hasGel;
+
+            if (hasRemoval) {
+                if (removalType === 'our-store') {
+                    if (hasGel) {
+                        listItems.push({ name: `🧹 本店卸甲 (續做優惠)`, price: 0 });
+                        tips.push("本店卸甲續做：已為您減免卸甲費 $0！");
+                    } else {
+                        listItems.push({ name: `🧹 本店卸甲 (純卸甲)`, price: 300 });
+                        total += 300;
+                    }
+                } else if (removalType === 'other-store') {
+                    if (hasGel) {
+                        listItems.push({ name: `🧹 他店卸甲 (續做價)`, price: 300 });
+                        total += 300;
+                    } else {
+                        listItems.push({ name: `🧹 他店卸甲 (純卸甲)`, price: 400 });
+                        total += 400;
+                    }
+                }
+            }
+
+            // Single finger removal
+            const singleRemovalQty = counters['single-removal'];
+            if (singleRemovalQty > 0) {
+                let unitPrice = 30; 
+                let removalLabel = '本店';
+                
+                if (removalType === 'other-store') {
+                    unitPrice = 40;
+                    removalLabel = '他店';
+                }
+                
+                const sub = singleRemovalQty * unitPrice;
+                listItems.push({ name: `🧹 ${removalLabel}單指卸甲 x ${singleRemovalQty}指`, price: sub });
+                total += sub;
+            }
+
+            // 4. Other Extra Add-ons
+            // Pure Ice Cube
+            if (counters['ice-cube'] > 0) {
+                const sub = counters['ice-cube'] * 80;
+                listItems.push({ name: `💎 純色冰塊 x ${counters['ice-cube']}指`, price: sub });
+                total += sub;
+            }
+            // Full Diamonds
+            if (counters['full-diamond'] > 0) {
+                const sub = counters['full-diamond'] * 200;
+                listItems.push({ name: `💎 滿鑽單指 x ${counters['full-diamond']}指`, price: sub });
+                total += sub;
+            }
+            // Extension
+            if (counters['extension'] > 0) {
+                const sub = counters['extension'] * 150;
+                listItems.push({ name: `💅 延甲 x ${counters['extension']}指`, price: sub });
+                total += sub;
+            }
+            // Repair
+            if (counters['repair'] > 0) {
+                const sub = counters['repair'] * 100;
+                listItems.push({ name: `🩹 補甲 x ${counters['repair']}指`, price: sub });
+                total += sub;
+            }
+            // Stickers
+            const stickers = parseInt(document.getElementById('sticker-count').value) || 0;
+            if (stickers > 0) {
+                listItems.push({ name: `🏷️ 貼紙 x ${stickers}張`, price: stickers * 30 });
+                total += stickers * 30;
+            }
+            // Custom Diamond
+            const diaPrice = parseInt(document.getElementById('diamond-price').value) || 0;
+            if (diaPrice > 0) {
+                listItems.push({ name: `✨ 貼鑽自選配對`, price: diaPrice });
+                total += diaPrice;
+            }
+            // Custom Tile
+            const tilePrice = parseInt(document.getElementById('tile-price').value) || 0;
+            if (tilePrice > 0) {
+                listItems.push({ name: `🎨 手繪花磚設計`, price: tilePrice });
+                total += tilePrice;
+            }
+
+            // 5. Care Items & Rules logic
+            const careHandDeep = document.getElementById('care-hand-deep').checked;
+            const careFootDeep = document.getElementById('care-foot-deep').checked;
+            const careFootCallusDeep = document.getElementById('care-foot-callus-deep').checked;
+            const careFootCallusOnly = document.getElementById('care-foot-callus-only').checked;
+            const careHandBasic = document.getElementById('care-hand-basic').checked;
+            const careFootBasic = document.getElementById('care-foot-basic').checked;
+            const careHardSkin = document.getElementById('care-hard-skin').checked;
+
+            // 5a. Pure Callus Only
+            if (careFootCallusOnly) {
+                const isSingleService = !hasGel && !hasRemoval && !careHandDeep && !careFootDeep && !careFootCallusDeep && !careHandBasic && !careFootBasic && !careHardSkin;
+                if (isSingleService) {
+                    listItems.push({ name: `🦶 純足底去繭 (單做原價)`, price: 350 });
+                    total += 350;
+                } else {
+                    listItems.push({ name: `🦶 純足底去繭 (享搭購折扣)`, price: 300 });
+                    total += 300;
+                    tips.push("已自動為足底去繭套用加購價 $300！");
+                }
+            }
+
+            // 5b. Hard Skin
+            if (careHardSkin) {
+                listItems.push({ name: `🩹 兩側硬皮處理`, price: 100 });
+                total += 100;
+            }
+
+            // 5c. Deep Cares (限凝膠)
+            let selectedDeepCares = [];
+            if (careHandDeep) selectedDeepCares.push({ id: 'handDeep', name: '手部深層保濕保養', base: 899, addon: 799 });
+            if (careFootDeep) selectedDeepCares.push({ id: 'footDeep', name: '足部深層保濕保養', base: 1299, addon: 899 });
+            if (careFootCallusDeep) selectedDeepCares.push({ id: 'footCallusDeep', name: '足部去繭深層保養', base: 1399, addon: 999 });
+
+            if (selectedDeepCares.length > 0) {
+                if (hasGel) {
+                    selectedDeepCares.forEach(care => {
+                        listItems.push({ name: `🌸 ${care.name} (凝膠加購)`, price: care.addon });
+                        total += care.addon;
+                    });
+                    tips.push("✅ 本次消費含凝膠，所有深層保濕保養享加購優惠價！");
+                } else {
+                    if (selectedDeepCares.length === 1) {
+                        const care = selectedDeepCares[0];
+                        listItems.push({ name: `🌸 ${care.name} (無凝膠原價)`, price: care.base });
+                        total += care.base;
+                        if (isPureRemoval) {
+                            tips.push("⚠️ 注意：純卸甲無凝膠，深層保濕保養需以原價計費。");
+                        }
+                    } else {
+                        selectedDeepCares.sort((a, b) => b.base - a.base);
+                        const highest = selectedDeepCares[0];
+                        listItems.push({ name: `🌸 ${highest.name} (無凝膠原價)`, price: highest.base });
+                        total += highest.base;
+
+                        for (let i = 1; i < selectedDeepCares.length; i++) {
+                            const cheaper = selectedDeepCares[i];
+                            listItems.push({ name: `🌸 ${cheaper.name} (多項加購價)`, price: cheaper.addon });
+                            total += cheaper.addon;
+                        }
+                        tips.push("雙重保養活動：無凝膠時做多項保養，價高者原價計算，其餘套用加購優惠價！");
+                    }
+                }
+            }
+
+            // 5d. Basic Care Normal 300, Pure Removal Add-on 150
+            if (careHandBasic) {
+                if (isPureRemoval) {
+                    listItems.push({ name: `🦶 手部基礎保養 (純卸加購半價)`, price: 150 });
+                    total += 150;
+                    tips.push("✨ 純卸甲加購手部基礎保養，現省 $150（半價優惠）！");
+                } else {
+                    listItems.push({ name: `🦶 手部基礎保養`, price: 300 });
+                    total += 300;
+                }
+            }
+
+            if (careFootBasic) {
+                if (isPureRemoval) {
+                    listItems.push({ name: `🦶 足部基礎保養 (純卸加購半價)`, price: 150 });
+                    total += 150;
+                    tips.push("✨ 純卸甲加購足部基礎保養，現省 $150（半價優惠）！");
+                } else {
+                    listItems.push({ name: `🦶 足部基礎保養`, price: 300 });
+                    total += 300;
+                }
+            }
+
+            // Cache data before discount
+            lastGeneratedReceiptItems = [...listItems];
+            lastGeneratedTotalBeforeDiscount = total;
+
+            // 6. Manual Custom Discount Calculation (自訂優惠折抵)
+            const discountVal = parseInt(document.getElementById('cust-discount').value) || 0;
+            let finalTotal = Math.max(0, total - discountVal);
+            lastGeneratedFinalTotal = finalTotal;
+
+            if (discountVal > 0) {
+                // Display discount in real-time items list too
+                listItems.push({ name: `🎁 專屬特惠折抵金額`, price: -discountVal });
+            }
+
+            // Render items in UI
+            renderReceipt(listItems);
+            
+            // Show / Hide Tips
+            const tipsContainer = document.getElementById('calc-rules-tips');
+            const tipsContent = document.getElementById('rules-tips-content');
+            if (tips.length > 0) {
+                tipsContainer.classList.remove('hidden');
+                tipsContent.innerHTML = tips.map(t => `<p class="leading-relaxed">${t}</p>`).join('');
+            } else {
+                tipsContainer.classList.add('hidden');
+            }
+
+            // Set Final Total
+            document.getElementById('grand-total').textContent = `$${finalTotal}`;
+
+            // Generate Clipboard Text Previews
+            updateClipboardText(listItems, finalTotal, discountVal);
+        }
+
+        // Render receipt logic helper
+        function renderReceipt(items) {
+            const container = document.getElementById('receipt-items');
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="text-gray-400 text-center py-8 text-sm">
+                        <i data-lucide="shopping-bag" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                        尚未選取任何服務項目
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = items.map(item => {
+                const isDiscount = item.price < 0;
+                return `
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100 text-sm">
+                        <span class="${isDiscount ? 'text-rose-700 font-semibold' : 'text-gray-700 font-medium'}">${item.name}</span>
+                        <span class="${isDiscount ? 'text-rose-700 font-bold' : 'font-bold text-gray-900'}">
+                            ${isDiscount ? `-$${Math.abs(item.price)}` : `$${item.price}`}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Generate and sync the final Line formatted quote string
+        function updateClipboardText(items, total, discountVal) {
+            const txtArea = document.getElementById('quote-clipboard-textarea');
+            const custName = document.getElementById('cust-name').value.trim();
+            const custPhone = document.getElementById('cust-phone').value.trim();
+            const custDateInput = document.getElementById('cust-date').value;
+            const colorCode = document.getElementById('cust-color-code').value.trim();
+
+            let formattedDate = "";
+            if (custDateInput) {
+                const d = new Date(custDateInput);
+                formattedDate = `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            }
+
+            if (items.length === 0 && !custName && !custPhone && !colorCode) {
+                txtArea.value = "尚未選取服務或輸入顧客資料。";
+                return;
+            }
+
+            let text = `🌿 森語美甲 Forest Whisper 🌿\n`;
+            text += `【預約顧客紀錄與報價】\n`;
+            text += `---------------------------\n`;
+            if (custName)  text += `👤 顧客姓名：${custName}\n`;
+            if (custPhone) text += `📞 聯絡電話：${custPhone}\n`;
+            if (formattedDate) text += `📅 預約時間：${formattedDate}\n`;
+            if (colorCode) text += `🎨 施作色號：${colorCode}\n`;
+            text += `💳 付款方式：${paymentMethod}\n`;
+            text += `---------------------------\n`;
+            
+            // List services
+            let itemIndex = 1;
+            lastGeneratedReceiptItems.forEach(item => {
+                text += `${itemIndex++}. ${item.name} ：$${item.price}\n`;
+            });
+
+            if (discountVal > 0) {
+                text += `🎁 優惠折扣折抵：-$${discountVal}\n`;
+            }
+
+            text += `---------------------------\n`;
+            text += `💰 實收總金額：$${total} 元\n`;
+            text += `\n*此報價依 1/13 新版官方價目表精確計算。`;
+            text += `\n期待在溫慢的森林密語中與您相遇！🍃`;
+
+            txtArea.value = text;
+        }
+
+        // ==================== CLOUD DATABASE STORAGE SYSTEM ====================
+        function saveAndCopyQuote() {
+            if (lastGeneratedReceiptItems.length === 0) {
+                alert('請先選取服務項目再進行儲存！');
+                return;
+            }
+
+            const custName = document.getElementById('cust-name').value.trim() || "現場散客";
+            const custPhone = document.getElementById('cust-phone').value.trim() || "未留電話";
+            const custDateInput = document.getElementById('cust-date').value;
+            const colorCode = document.getElementById('cust-color-code').value.trim() || "無備註";
+            const discountVal = parseInt(document.getElementById('cust-discount').value) || 0;
+
+            let formattedDate = "";
+            if (custDateInput) {
+                const d = new Date(custDateInput);
+                formattedDate = `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            } else {
+                const d = new Date();
+                formattedDate = `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            }
+
+            // Create record conforming to requirements (No complex queries rule observed)
+            const newQuoteRecord = {
+                id: 'quote-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+                customerName: custName,
+                customerPhone: custPhone,
+                appointmentDate: formattedDate,
+                colorNotes: colorCode,
+                payMethod: paymentMethod,
+                target: selectedTarget === 'hand' ? "手部美甲" : "足部美甲",
+                items: lastGeneratedReceiptItems,
+                discount: discountVal,
+                totalPrice: lastGeneratedFinalTotal,
+                lineText: document.getElementById('quote-clipboard-textarea').value
+            };
+
+            // Save locally
+            savedHistoryQuotes.unshift(newQuoteRecord);
+            
+            try {
+                localStorage.setItem('forest_whisper_cloud_quotes_v2', JSON.stringify(savedHistoryQuotes));
+            } catch(e) {
+                console.error("無法備份資料至本機空間");
+            }
+
+            // Copy Quote to Clipboard
+            const txtArea = document.getElementById('quote-clipboard-textarea');
+            txtArea.select();
+            txtArea.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+
+            // Button Feedback
+            const copyBtn = document.getElementById('copy-btn');
+            const copyBtnSpan = copyBtn.querySelector('span');
+            copyBtn.classList.replace('bg-sky-700', 'bg-emerald-600');
+            copyBtnSpan.innerText = '儲存並複製成功！';
+
+            // Show Toast Banner
+            const toast = document.getElementById('copy-toast');
+            toast.classList.remove('hidden');
+
+            updateHistoryBadge();
+
+            setTimeout(() => {
+                copyBtn.classList.replace('bg-emerald-600', 'bg-sky-700');
+                copyBtnSpan.innerText = '儲存並複製';
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Search Engine - Searches name, phone, color notes, part, items, price, payMethod
+        function renderHistoryList() {
+            const container = document.getElementById('history-container');
+            const searchKeyword = document.getElementById('history-search').value.toLowerCase().trim();
+            const filterPart = document.getElementById('history-filter-part').value;
+
+            // Omnipresent deep filter
+            const filteredQuotes = savedHistoryQuotes.filter(quote => {
+                const matchSearch = quote.customerName.toLowerCase().includes(searchKeyword) || 
+                                    quote.customerPhone.toLowerCase().includes(searchKeyword) ||
+                                    quote.appointmentDate.toLowerCase().includes(searchKeyword) ||
+                                    quote.colorNotes.toLowerCase().includes(searchKeyword) ||
+                                    quote.payMethod.toLowerCase().includes(searchKeyword) ||
+                                    quote.totalPrice.toString().includes(searchKeyword) ||
+                                    quote.items.some(item => item.name.toLowerCase().includes(searchKeyword));
+                
+                const matchPart = filterPart === 'all' || 
+                                  (filterPart === 'hand' && quote.target === '手部美甲') ||
+                                  (filterPart === 'foot' && quote.target === '足部美甲');
+
+                return matchSearch && matchPart;
+            });
+
+            document.getElementById('history-count-text').innerText = filteredQuotes.length;
+
+            if (filteredQuotes.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-400 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
+                        <i data-lucide="database" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
+                        <p class="font-medium">無符合關鍵字之顧客檔案</p>
+                        <p class="text-xs text-gray-400 mt-1">您可以搜尋色號、電話、名字或付款方式</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = filteredQuotes.map(quote => {
+                const itemsHtml = quote.items.map(item => `
+                    <div class="flex justify-between text-xs py-1 border-b border-stone-100/60">
+                        <span class="text-stone-600">${item.name}</span>
+                        <span class="font-bold text-stone-800">$${item.price}</span>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="bg-stone-50 border border-stone-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start gap-2 mb-3">
+                                <div>
+                                    <span class="text-[10px] text-stone-400 block">${quote.appointmentDate}</span>
+                                    <h4 class="font-bold text-gray-900 text-base mt-0.5">${quote.customerName}</h4>
+                                    <p class="text-xs text-sky-700 font-semibold tracking-wide mt-0.5">${quote.customerPhone}</p>
+                                </div>
+                                <div class="flex flex-col items-end gap-1.5">
+                                    <span class="text-[10px] px-2 py-0.5 rounded font-bold ${quote.target === '手部美甲' ? 'bg-sky-50 text-sky-800 border border-sky-100' : 'bg-amber-50 text-amber-800 border border-amber-100'}">
+                                        ${quote.target}
+                                    </span>
+                                    <span class="text-[10px] bg-stone-200/60 text-stone-700 px-1.5 py-0.5 rounded font-bold">${quote.payMethod}</span>
+                                </div>
+                            </div>
+
+                            <!-- Color Note Block -->
+                            <div class="bg-sky-50/40 rounded-xl p-2.5 border border-sky-100/30 text-xs mb-3 text-stone-700 flex items-start gap-1">
+                                <i data-lucide="palette" class="w-3.5 h-3.5 text-sky-600 shrink-0 mt-0.5"></i>
+                                <div><span class="font-semibold text-sky-800">色號備註：</span>${quote.colorNotes}</div>
+                            </div>
+                            
+                            <!-- Items List -->
+                            <div class="bg-white rounded-xl p-3 border border-stone-100 space-y-1 max-h-[120px] overflow-y-auto mb-4">
+                                ${itemsHtml}
+                                ${quote.discount > 0 ? `
+                                <div class="flex justify-between text-xs py-1 border-t border-dashed border-stone-100 mt-1 text-rose-700 font-medium">
+                                    <span>🎁 折扣折抵</span>
+                                    <span>-$${quote.discount}</span>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-baseline mb-4">
+                                <span class="text-xs text-gray-500 font-medium">實收總計</span>
+                                <span class="text-2xl font-black text-sky-700">$${quote.totalPrice}</span>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="grid grid-cols-2 gap-2 border-t border-stone-200/60 pt-3">
+                                <button onclick="copyQuoteTextDirectly('${quote.id}')" class="text-xs bg-sky-50 text-sky-700 hover:bg-sky-100 py-2.5 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-colors">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i> 複製 LINE
+                                </button>
+                                <button onclick="deleteQuoteRecord('${quote.id}')" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 py-2.5 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-colors">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 刪除紀錄
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // Direct Clipboard action from history card
+        function copyQuoteTextDirectly(id) {
+            const record = savedHistoryQuotes.find(q => q.id === id);
+            if (!record) return;
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = record.lineText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            alert(`✅ 顧客「${record.customerName}」的歷史施作明細複製成功！`);
+        }
+
+        // Delete Quote record from list
+        function deleteQuoteRecord(id) {
+            if (!confirm('您確定要刪除這筆雲端歷史紀錄嗎？（刪除後將無法復原）')) {
+                return;
+            }
+
+            savedHistoryQuotes = savedHistoryQuotes.filter(q => q.id !== id);
+            
+            try {
+                localStorage.setItem('forest_whisper_cloud_quotes_v2', JSON.stringify(savedHistoryQuotes));
+            } catch(e) {}
+
+            renderHistoryList();
+            updateHistoryBadge();
+        }
+
+        // Clear all history
+        function clearAllLocalHistory() {
+            if (!confirm('⚠️ 警告：這將會永久清空您的所有顧客歷史檔案！您確定要繼續嗎？')) {
+                return;
+            }
+
+            savedHistoryQuotes = [];
+            try {
+                localStorage.removeItem('forest_whisper_cloud_quotes_v2');
+            } catch(e) {}
+
+            renderHistoryList();
+            updateHistoryBadge();
+        }
+
+        // Update badge count
+        function updateHistoryBadge() {
+            const badge = document.getElementById('history-badge');
+            if (savedHistoryQuotes.length > 0) {
+                badge.innerText = savedHistoryQuotes.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // Reset all calculator selections
+        function resetCalculator() {
+            document.getElementById('main-category').value = 'none';
+            document.getElementById('removal-type').value = 'none';
+            document.getElementById('sticker-count').value = '0';
+            document.getElementById('diamond-price').value = '0';
+            document.getElementById('tile-price').value = '0';
+            document.getElementById('cust-name').value = '';
+            document.getElementById('cust-phone').value = '';
+            document.getElementById('cust-date').value = '';
+            document.getElementById('cust-color-code').value = '';
+            document.getElementById('cust-discount').value = '';
+
+            // Reset checkboxes
+            const cares = ['care-hand-deep', 'care-foot-deep', 'care-foot-callus-deep', 'care-foot-callus-only', 'care-hand-basic', 'care-foot-basic', 'care-hard-skin'];
+            cares.forEach(id => document.getElementById(id).checked = false);
+
+            // Reset Counters
+            for (let key in counters) {
+                counters[key] = 0;
+                document.getElementById(`${key}-count`).textContent = 0;
+            }
+
+            const jumpWrapper = document.getElementById('jump-color-high-wrapper');
+            jumpWrapper.classList.add('hidden');
+            document.getElementById('jump-color-high-tier').value = "0";
+
+            updatePayMethod('現金');
+            handleCategoryChange();
+            updateTarget('hand');
+        }
+    </script>
+</body>
+</html>
+
+```
